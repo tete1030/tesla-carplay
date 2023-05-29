@@ -1,0 +1,56 @@
+version: '3'
+services:
+  # web:
+  #   image: nginx:alpine
+  #   volumes:
+  #     - ./conf/carplay.conf:/etc/nginx/conf.d/carplay.conf
+  #   depends_on:
+  #     - carplay
+  carplay:
+    build: .
+    privileged: true
+    volumes:
+      - ./conf:/app/conf
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8080"
+      - "traefik.http.services.justAdummyService.loadbalancer.server.port=1337"
+      - "traefik.http.middlewares.redirect.redirectscheme.scheme=https"
+      # - "traefik.http.middlewares.carplay-auth.basicauth.realm=carplay"
+      # - "traefik.http.middlewares.carplay-auth.basicauth.usersfile=/auth/.htpasswd"
+      - "traefik.http.routers.carplay-insecure.rule=Host(`${FQDN_CARPLAY}`)"
+      - "traefik.http.routers.carplay-insecure.middlewares=redirect"
+      - "traefik.http.routers.carplay-ws.rule=Host(`${FQDN_CARPLAY}`) && Path(`/live/websocket`)"
+      - "traefik.http.routers.carplay-ws.entrypoints=websecure"
+      - "traefik.http.routers.carplay-ws.tls"
+      - "traefik.http.routers.carplay.rule=Host(`${FQDN_CARPLAY}`)"
+      # - "traefik.http.routers.carplay.middlewares=carplay-auth"
+      - "traefik.http.routers.carplay.entrypoints=websecure"
+      - "traefik.http.routers.carplay.tls.certresolver=tcdnschallenge"
+  proxy:
+    image: traefik:v2.9
+    restart: always
+    command:
+      # - "--log.level=DEBUG"
+      - "--global.sendAnonymousUsage=false"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.tcdnschallenge.acme.dnschallenge=true"
+      - "--certificatesresolvers.tcdnschallenge.acme.dnschallenge.provider=cloudflare"
+      # - "--certificatesresolvers.tcdnschallenge.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.tcdnschallenge.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.tcdnschallenge.acme.storage=/etc/acme/acme.json"
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - "CF_DNS_API_TOKEN"
+    depends_on:
+      - carplay
+    volumes:
+      # - ./.htpasswd:/auth/.htpasswd
+      - ./acme/:/etc/acme/
+      - /var/run/docker.sock:/var/run/docker.sock:ro
