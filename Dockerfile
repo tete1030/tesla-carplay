@@ -38,9 +38,10 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     libbluetooth3 \
     libsbc1 \
-    libspandsp2
+    libspandsp2 \
+    alsa-utils
 
-COPY --from=build /install/bluez-alsa /usr/local
+COPY --from=build /install/bluez-alsa /
 
 RUN sed -i'' 's/^ExecStart=.*/\0 --noplugin=sap --plugin=a2dp,avrcp/' /etc/systemd/system/bluetooth.target.wants/bluetooth.service && \
     sed -i'' 's/^#Name = .*/Name = CarPlay/' /etc/bluetooth/main.conf && \

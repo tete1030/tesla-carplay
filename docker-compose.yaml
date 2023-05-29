@@ -9,6 +9,7 @@ services:
   carplay:
     build: .
     privileged: true
+    network_mode: host
     volumes:
       - ./conf:/app/conf
     labels:
