@@ -21,9 +21,9 @@ RUN cd /root && \
     mkdir build && \
     cd build && \
     mkdir -p /install/bluez-alsa && \
-    ../configure CFLAGS="-g -O0" LDFLAGS="-g" --enable-debug --prefix=/install/bluez-alsa && \
+    ../configure CFLAGS="-g -O0" LDFLAGS="-g" --enable-debug && \
     make && \
-    make install
+    make DESTDIR=/install/bluez-alsa install
 
 FROM node:18-bullseye
 
