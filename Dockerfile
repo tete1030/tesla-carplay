@@ -39,12 +39,16 @@ RUN apt-get update && apt-get install -y \
     libbluetooth3 \
     libsbc1 \
     libspandsp2 \
-    alsa-utils
+    alsa-utils \
+    rsyslog
 
 COPY --from=build /install/bluez-alsa /
+COPY ./conf/asound.conf /etc/asound.conf
+ENV SDL_AUDIODRIVER=alsa
 
 RUN sed -i'' 's/^ExecStart=.*/\0 --noplugin=sap --plugin=a2dp,avrcp/' /etc/systemd/system/bluetooth.target.wants/bluetooth.service && \
     sed -i'' 's/^#Name = .*/Name = CarPlay/' /etc/bluetooth/main.conf && \
+    echo '*.* -/dev/stdout' >> /etc/rsyslog.d/config.conf && \
     adduser root bluetooth && \
     adduser root audio
 

@@ -1,17 +1,17 @@
 version: '3'
 services:
-  # web:
-  #   image: nginx:alpine
-  #   volumes:
-  #     - ./conf/carplay.conf:/etc/nginx/conf.d/carplay.conf
-  #   depends_on:
-  #     - carplay
+  web:
+    image: nginx:alpine
+    volumes:
+      - ./conf/carplay.conf:/etc/nginx/conf.d/carplay.conf
+    depends_on:
+      - carplay
   carplay:
     build: .
     privileged: true
     network_mode: host
-    volumes:
-      - ./conf:/app/conf
+    environment:
+      - TESLA_BT_MAC=${TESLA_BT_MAC}
     labels:
       - "traefik.enable=true"
       - "traefik.port=8080"
