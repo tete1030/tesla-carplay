@@ -51,8 +51,12 @@ RUN sed -i'' 's/^ExecStart=.*/\0 --noplugin=sap --plugin=a2dp,avrcp/' /etc/syste
     adduser root bluetooth && \
     adduser root audio
 
-COPY . /app
-
+COPY ./package.json /app/package.json
 RUN cd /app && npm install
+
+COPY ./static /app/static
+COPY ./index.js /app/index.js
+COPY ./entry.sh /app/entry.sh
+
 WORKDIR /app/workdir
 ENTRYPOINT [ "/app/entry.sh" ]

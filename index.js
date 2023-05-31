@@ -153,9 +153,10 @@ bluetooth.on('device', async (address, props) => {
             _INIT = true
             _INIT_SERVER()
           }
-        } else {
-          console.log("Bluetooth Disconnected");
         }
+        // } else {
+        //   console.log("Bluetooth Disconnected");
+        // }
     });
 });
 

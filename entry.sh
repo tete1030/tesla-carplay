@@ -7,6 +7,8 @@ if [ -z "${TESLA_BT_MAC}" ]; then
     exit 1
 fi
 
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 echo '*.* -/dev/stdout' > /etc/rsyslog.d/config.conf
 cp /etc/asound.conf.default /etc/asound.conf
 sed -i'' "s/AA:BB:CC:DD:EE:FF/${TESLA_BT_MAC}/g" /etc/asound.conf
@@ -36,10 +38,10 @@ hciconfig hci0 up
         echo "waiting for ${TESLA_BT_MAC}"
         sleep 1
     done
-    bluetoothctl pair "${TESLA_BT_MAC}"
+    bluetoothctl pair "${TESLA_BT_MAC}" || true
     bluetoothctl connect "${TESLA_BT_MAC}"
     bluetoothctl scan off
 ) &
 
 echo "Starting index.js"
-node index.js
+node "${SOURCE_DIR}/index.js"
