@@ -1,3 +1,5 @@
 /acme
 .env
 /data
+
+node_modules
