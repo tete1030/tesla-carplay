@@ -52,6 +52,7 @@ RUN sed -i'' 's/^ExecStart=.*/\0 --noplugin=sap --plugin=a2dp,avrcp/' /etc/syste
     adduser root audio
 
 COPY ./package.json /app/package.json
+COPY ./package-lock.json /app/package-lock.json
 RUN cd /app && npm install
 
 COPY ./static /app/static
