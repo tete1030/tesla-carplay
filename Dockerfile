@@ -52,7 +52,7 @@ RUN sed -i'' 's/^ExecStart=.*/\0 --noplugin=sap --plugin=a2dp,avrcp/' /etc/syste
     adduser root audio
 
 COPY . /app
-WORKDIR /app
 
-RUN npm install
-ENTRYPOINT [ "./entry.sh" ]
+RUN cd /app && npm install
+WORKDIR /app/workdir
+ENTRYPOINT [ "/app/entry.sh" ]

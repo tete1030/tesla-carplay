@@ -32,6 +32,8 @@ services:
     image: tete1030/tesla-carplay:latest
     privileged: true
     network_mode: host
+    volumes:
+      - ./data:/app/workdir
     environment:
       - TESLA_BT_MAC=${TESLA_BT_MAC}
   proxy:
