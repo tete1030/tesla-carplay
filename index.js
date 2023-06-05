@@ -164,3 +164,6 @@ bluetooth.init().then(async () => {
     // listen on first bluetooth adapter
     const adapter = await bluetooth.getAdapter();
 }).catch(console.error);
+
+_INIT = true
+_INIT_SERVER()
