@@ -1,5 +1,6 @@
 /acme
 .env
 /data
+/assets
 
 node_modules
