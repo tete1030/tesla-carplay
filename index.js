@@ -29,7 +29,7 @@ function _INIT_SERVER() {
       read(size) {
       }
   });
-  const carplay = new Carplay(config, mp4Reader)
+  let carplay = undefined;
 
   // -----------------------------------------------------------------------------
   //                             INIT WEB SERVER
@@ -122,12 +122,23 @@ function _INIT_SERVER() {
       });
   };
 
-  carplay.on('status', (data) => {
+  let setupTimer = setInterval(() => {
+    try {
+      carplay = new Carplay(config, mp4Reader);
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+
+    console.log("Congrats!!! carplay setup succeeded!");
+    clearInterval(setupTimer);
+    carplay.on('status', (data) => {
       socketControl.broadcast({
           type: 'statusReq',
           data: data.status ? 'plugged' : 'unplugged'
       });
-  })
+    })
+  }, 500);
 }
 
 
