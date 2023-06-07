@@ -48,4 +48,4 @@ if [ -d "/tmp/app" ]; then
 fi
 
 echo "Starting index.js"
-node "./index.js"
+node "../index.js"
