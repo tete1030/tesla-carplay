@@ -4,6 +4,7 @@
   "version": "0.3",
   "dependencies": {
     "bluez": "^0.4.5",
+    "debug-trace": "^2.2.3",
     "node-carplay": "git+https://github.com/tete1030/node-Carplay.git#master",
     "ws": "^8.2.3"
   },

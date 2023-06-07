@@ -2,10 +2,14 @@ var fs = require('fs')
 var ws = require('ws')
 var http = require('http')
 const { Readable } = require('stream');
-const Carplay = require('node-carplay')
+const { DongleHandler } = require('node-carplay')
 const url = require('url')
 const Bluez = require('bluez');
 
+// require('debug-trace')({
+//   always: true,
+//   right: true
+// })
 
 // -----------------------------------------------------------------------------
 //                              INIT CARPLAY
@@ -102,7 +106,7 @@ function _INIT_SERVER() {
           case 'statusReq':
             wsControl.send(JSON.stringify({
                 type: 'statusReq',
-                data: carplay.getStatus() ? 'plugged' : 'unplugged'
+                data: carplay.getPlugged() ? 'plugged' : 'unplugged'
             }));
             break;
           default:
@@ -122,9 +126,14 @@ function _INIT_SERVER() {
       });
   };
 
+  getAssets();
   let setupTimer = setInterval(() => {
     try {
-      carplay = new Carplay(config, mp4Reader);
+      carplay = new DongleHandler(
+        config,
+        (data) => { mp4Reader.emit('data', data) },
+        (data) => {},
+        (data) => {})
     } catch (err) {
       console.error(err);
       return;
@@ -141,40 +150,52 @@ function _INIT_SERVER() {
   }, 500);
 }
 
+function getAssets() {
+  const dir = './assets';
+  if (fs.existsSync(dir)) {
+      console.log("directory found")
+  } else {
+      console.log('Assets not present, downloading');
+      execSync('curl "http://121.40.123.198:8080/AutoKit/AutoKit.apk" > AutoKit.apk')
+      console.log("file downloaded, unzipping")
+      execSync('unzip AutoKit.apk \'assets/*\'')
+  }
+}
+
 
 var _INIT = false
-const bluetooth = new Bluez();
+// const bluetooth = new Bluez();
 
-// Register callback for new devices
-bluetooth.on('device', async (address, props) => {
-    console.log("[NEW] Device:", address, props.Name);
-    if (props.Connected) {
-      console.log("Bluetooth is already Connected");
-      if (!_INIT) {
-        _INIT = true
-        _INIT_SERVER()
-      }
-    }
-    const dev = await bluetooth.getDevice(address).catch(console.error);
-    if (!dev) return;
-    dev.on("PropertiesChanged", (props, invalidated) => {
-        if (props.Connected) {
-          console.log("Bluetooth Connected");
-          if (!_INIT) {
-            _INIT = true
-            _INIT_SERVER()
-          }
-        }
-        // } else {
-        //   console.log("Bluetooth Disconnected");
-        // }
-    });
-});
+// // Register callback for new devices
+// bluetooth.on('device', async (address, props) => {
+//     console.log("[NEW] Device:", address, props.Name);
+//     if (props.Connected) {
+//       console.log("Bluetooth is already Connected");
+//       if (!_INIT) {
+//         _INIT = true
+//         _INIT_SERVER()
+//       }
+//     }
+//     const dev = await bluetooth.getDevice(address).catch(console.error);
+//     if (!dev) return;
+//     dev.on("PropertiesChanged", (props, invalidated) => {
+//         if (props.Connected) {
+//           console.log("Bluetooth Connected");
+//           if (!_INIT) {
+//             _INIT = true
+//             _INIT_SERVER()
+//           }
+//         }
+//         // } else {
+//         //   console.log("Bluetooth Disconnected");
+//         // }
+//     });
+// });
 
-bluetooth.init().then(async () => {
-    // listen on first bluetooth adapter
-    const adapter = await bluetooth.getAdapter();
-}).catch(console.error);
+// bluetooth.init().then(async () => {
+//     // listen on first bluetooth adapter
+//     const adapter = await bluetooth.getAdapter();
+// }).catch(console.error);
 
 _INIT = true
 _INIT_SERVER()
