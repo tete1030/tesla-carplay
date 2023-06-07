@@ -29,19 +29,25 @@ echo "Restarting hci0"
 hciconfig hci0 down
 hciconfig hci0 up
 
-(
-    sleep 2
-    bluetoothctl discoverable on
-    # bluetoothctl pairable on
-    bluetoothctl scan on >/dev/null &
-    while ! bluetoothctl trust "${TESLA_BT_MAC}" &>/dev/null; do
-        echo "waiting for ${TESLA_BT_MAC}"
-        sleep 1
-    done
-    bluetoothctl pair "${TESLA_BT_MAC}" || true
-    bluetoothctl connect "${TESLA_BT_MAC}"
-    bluetoothctl scan off
-) &
+# (
+#     sleep 2
+#     bluetoothctl discoverable on
+#     # bluetoothctl pairable on
+#     bluetoothctl scan on >/dev/null &
+#     while ! bluetoothctl trust "${TESLA_BT_MAC}" &>/dev/null; do
+#         echo "waiting for ${TESLA_BT_MAC}"
+#         sleep 1
+#     done
+#     bluetoothctl pair "${TESLA_BT_MAC}" || true
+#     bluetoothctl connect "${TESLA_BT_MAC}"
+#     bluetoothctl scan off
+# ) &
+
+if [ -d "/tmp/app" ]; then
+    rm -rf static
+    cp -r /tmp/app/static /tmp/app/index.js /tmp/app/package.json /tmp/app/package-lock.json ./
+    npm install
+fi
 
 echo "Starting index.js"
 node "${SOURCE_DIR}/index.js"
