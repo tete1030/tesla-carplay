@@ -44,7 +44,10 @@ hciconfig hci0 up
 # ) &
 
 if [ -d "/tmp/app" ]; then
-    cd /tmp/app
+    if [ ! -d "/tmp/app/workdir" ]; then
+        mkdir /tmp/app/workdir
+    fi
+    cd /tmp/app/workdir
 fi
 
 echo "Starting index.js"
