@@ -6,5 +6,8 @@
     "bluez": "^0.4.5",
     "node-carplay": "git+https://github.com/tete1030/node-Carplay.git#master",
     "ws": "^8.2.3"
+  },
+  "scripts": {
+    "start": "node index.js"
   }
 }

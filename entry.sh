@@ -44,10 +44,8 @@ hciconfig hci0 up
 # ) &
 
 if [ -d "/tmp/app" ]; then
-    rm -rf static
-    cp -r /tmp/app/static /tmp/app/index.js /tmp/app/package.json /tmp/app/package-lock.json ./
-    npm install
+    cd /tmp/app
 fi
 
 echo "Starting index.js"
-node "${SOURCE_DIR}/index.js"
+node "./index.js"
