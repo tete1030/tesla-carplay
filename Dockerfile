@@ -1,6 +1,8 @@
+# syntax=docker/dockerfile:1
+
 FROM debian:bullseye AS build
 
-RUN apt-get update && apt-get install -y \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked apt-get update && apt-get install -y \
     build-essential \
     autoconf \
     git \
@@ -13,21 +15,21 @@ RUN apt-get update && apt-get install -y \
     libsbc-dev \
     libspandsp-dev
 
-RUN cd /root && \
-    git clone https://github.com/Arkq/bluez-alsa.git && \
+RUN --mount=type=cache,target=/root/build cd /root/build && \
+    ( test -d bluez-alsa || git clone --depth=1 https://github.com/Arkq/bluez-alsa.git ) && \
     cd bluez-alsa && \
-    mkdir -p m4 && \
+    ( test -d m4 || mkdir -p m4 ) && \
     autoreconf --install &&\
-    mkdir build && \
+    ( test -d build || mkdir build ) && \
     cd build && \
-    mkdir -p /install/bluez-alsa && \
+    ( rm -rf /install/bluez-alsa || true ) && mkdir -p /install/bluez-alsa && \
     ../configure CFLAGS="-g -O0" LDFLAGS="-g" --enable-debug && \
     make && \
     make DESTDIR=/install/bluez-alsa install
 
 FROM node:18-bullseye
 
-RUN apt-get update && apt-get install -y \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked apt-get update && apt-get install -y \
     ffmpeg \
     dbus \
     bluez \
@@ -53,7 +55,7 @@ RUN sed -i'' 's/^ExecStart=.*/\0 --noplugin=sap --plugin=a2dp,avrcp/' /etc/syste
 
 COPY ./package.json /app/package.json
 COPY ./package-lock.json /app/package-lock.json
-RUN cd /app && npm install
+RUN --mount=type=cache,target=/root/.npm cd /app && npm install
 
 COPY ./static /app/static
 COPY ./index.js /app/index.js
